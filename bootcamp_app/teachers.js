@@ -8,16 +8,19 @@ const pool = new Pool({
 });
 
 const cohortName = process.argv[2];
+const values = [`${cohortName}`];
 
-pool.query(`
+const queryString = `
 SELECT DISTINCT teachers.name AS teacher, cohorts.name AS cohort
 FROM teachers
 JOIN assistance_requests ON teachers.id = teacher_id
 JOIN students ON students.id = student_id
 JOIN cohorts ON cohorts.id = students.cohort_id
-WHERE cohorts.name = '${cohortName}'
+WHERE cohorts.name = $1
 ORDER BY teacher ASC;
-`)
+`;
+
+pool.query(queryString, values)
 .then(res => {
   res.rows.forEach(row => {
     console.log(`${row.cohort}: ${row.teacher}`);
